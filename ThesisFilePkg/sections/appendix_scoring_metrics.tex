@@ -1,0 +1,64 @@
+
+\chapter{Judging Criteria}
+\label{appendix:judjingcriteria}
+
+It is important to describe how I will be judging a model, i.e. the metric I will be using to score a model. Most machine learning models operate on the fundamental concept of ``minimizing error". However, this error doesn't have anything to do with the actual practical utility of a model because it may perform better on certain types of datapoints than others. In this study, because my problem is a binary classification one, I am interested in how often my model:
+
+\begin{itemize}
+    \item Predicts correctly that a M+ flare will happen in 24 hours (True Positive: TP)
+    \item Predicts correctly that a M+ flare will not happen in 24 hours (True Negative: TN)
+    \item Predicts incorrectly that a M+ flare will happen in 24 hours (False Positive: FP)
+    \item Predicts incorrectly that a M+ flare will not happen in 24 hours (False Negative: FN)
+\end{itemize}
+
+\section{TSS Score}
+One could imagine that the meaningfulness of each of these categories varies greatly across applications. In one situation, someone could be more interested in TP than TN because a positive has a higher risk factor. In this flare forecasting problem, we are interested primarily in how often we can predict a flare correctly (TP). However, we don't wish to waste valuable resources and assume flares happen more often than they do, so we also wish to minimize FP. For the prior mentioned importance of TP, it is slightly more important to maximize TP than it is to minimize FP, but both are considered in our result. We define the true positive rate ($TPR$) as the \textit{sensitivity} of our model, i.e., the number of correctly predicted positives ($TP$) over the total positives' population (Number of Positives $= TP + FN$):
+
+$$TPR = \frac{TP}{TP + FN}$$
+
+We define the true negative rate ($TNR$) as the \textit{specificity} of our model, i.e., number of correctly predicted negatives ($TN$) over the total negatives' population (Number of Negatives $= TN + FP$):
+
+$$TNR = \frac{TN}{TN + FP}$$
+
+Combining these two scores together, we define Youden's J statistic, referred to in this study as the True Skill Statistic ($TSS$), as:
+
+$$TSS = TPR + TNR - 1$$
+
+as a number that spans limits below at $-1$ when every positive was called a negative and every negative was labeled a positive - A perfectly negative score \footnote{Often in literature, $TSS \geq 0$ because we can adapt the predicted label to the observed label, treat 0's as 1's and 1's as 0's}. $TSS$ equals $0$ when every datapoint is labeled positive / negative (this property combats accuracy inflation in an unbalanced dataset) and $1$ when every positive was labeled a positive and every negative was labeled a negative - A perfect Model. In this study, and the analysis of datasets against each other, I will use the $TSS$ score as my primary metric, but there are two more important metrics that I will continually use to highlight certain characteristics of models: the $f1$ score and the Heidke Skill Score $HSS$. I also include accuracy as a simple, understandable metric.
+
+
+\section{F1 Score}
+Rather than combining the true positive rate and true negative rate, the $f1$ score relies on the combination of precision and recall. Precision shows how much \text{we can trust} a model when it gives a positive prediction (probability of a positive conditioned on being labeled positive). Precision is equal to the correct predicted positives over the predicted positives:
+
+$$Precision = \frac{TP}{TP + FP}$$
+
+Recall (same as TPR) measures model \textit{sensitivity}. It shows how much we can trust the model \text{in order to predict} a flare will happen (probability of a positive conditioned on being actually positive). Recall is equal to the correct predicted positives over the observed positives:
+
+$$Recall = TPR = \frac{TP}{TP + FN}$$
+
+The $f1$ score is simply the (sometimes weighted) harmonic mean of these two metrics:
+
+$$f1 = \frac{2}{\frac{1}{Precision} + \frac{1}{Recall}}$$
+
+The harmonic mean is chosen to punish extreme values. Both precision and recall have $TP$ in the numerator so it makes more sense to average their denominators of unequal values, hence the use of the harmonic mean.
+
+The problem with the $f1$ score comes with imbalanced datasets. In practice, there is approximately a near 1:100 \footnote{Within 24 hours, the ratio explained later in this section is for harpnumbers and not individual data points} ratio of flaring : non flaring active regions. Therefore, $FP$ will be artificially deflated because our model will learn that there are fewer positives than negatives. Therefore, the precision will appear very high. 
+
+\section{Heidke Skill Score}
+The Heidke Skill Score ($HSS$), known as the Kappa Score outside of climatology, is slightly more complex and shows the improvement over any type of standard forecast accuracy (which we have chosen to be the chance accuracy ($E$)). The accuracy (percent correct) of a model is equal to $\frac{TP + TN}{N} = \frac{TP + TN}{TP + TN + FP + FN}$. The perfect value for accuracy is 1. Accuracy is maximized when all data points ($x$) that are observed to be positive ($x = 1$) are correctly labeled ($\hat{x}$) as positive ($\hat{x} = 1$). The same for negative points. The reference accuracy ($E$) is equal to the probability that our model correctly guessed a label merely by random chance:
+
+$$E = p(x = 1 \quad and \quad \hat{x} = 1) \quad or \quad p(x = 0 \quad and \quad \hat{x} = 0)$$
+$$= p(x = 1)p(\hat{x} = 1) + p(x = 0)p(\hat{x} = 0)$$
+$$ = p(x = 1)(\frac{TP + FP}{N}) + p(x = 0)(\frac{FN + TN}{N})$$
+
+Where $N = TP + TN + FP + FN$ and $p(x)$ is fixed (across all possible models) as the probability of each classification in the given abstracted space. These are fixed constants that I will derive in the next section. The $HSS$ score is the ratio of the observed performance (accuracy) minus the probability that a datapoint is correctly classified ($E$) over the perfect performance ($1$) minus the probability that a datapoint is correctly classified ($E$):
+
+$$HSS = \frac{Model Accuracy - E}{Perfect Accuracy - E}$$
+
+Note that often $HSS$ is simplified to the expression below:
+
+$$HSS = \frac{2((TP)(TN)-(FP)(FN))}{(TP + FP)(FP + TN) + (TP + FN)(FN + TN)}$$
+
+This simplification comes from defining $p(x = 1) = \frac{TP + FN}{N}$ and $p(x = 0) = \frac{TN + FP}{N}$. However, in this study, I have access to years of flaring data and $p(x)$ can be estimated by the frequency of flares in the past, which I will describe further in the next section.
+
+These three metrics: $TSS$, $f1$ and $HSS$ will be used in my results section to discuss how a certain model performed on an individual dataset, but the $TSS$ score will be used to rank models because I believe it is most fit by fixing the imbalanced dataset problem. Looking at the raw $TP$, $TN$, $FN$, $FP$ rates alone is also useful because it shows each model's strength's and weaknesses. Does a model tend to perform really well at finding flares? Can we trust the model when it makes a positive / negative response? These are all important considerations for each model we use to generate a solar flare forecast that I will analyse in my findings section.

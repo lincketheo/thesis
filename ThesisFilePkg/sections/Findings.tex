@@ -1,0 +1,145 @@
+\chapter{Findings}
+
+\section{Goal one: Segmentation vs No Segmentation / SHARPs}
+\subsection{Model Rankings}
+
+After training and testing the seven simple machine learning models and the Artificial Neural Network described in the previous chapter, all methods, except random forest and decision trees, performed better when trained on the Segmented data set than on the Full and SHARPs data sets. Although the Random Forest and Decision tree performed better more often when trained on the Segmented data set in the trials I ran, the resulting difference in the means of the TSS scores between the three data sets for these two models was not big enough to warrant a rejection of the null hypothesis that the two models performed the same. This failure of rejection is likely due to the significant standard deviation of scores of these two models (shown visually in figure \ref{fig:resultsmethods}). Recall that I define class 1 models as those that perform better on the Segmented data set than on the Full and SHARPs data sets and class 2 models as those that perform equally between all three data sets. Figure \ref{tbl:bsseg} shows the resulting classes for each model comparing the Segmented and Full trained models, where the p-value indicates the statistical certainty that a model belongs to a particular class (a lower p-value is a more specific result). I use a statistical test at the $\alpha = 0.01$ level to show that a model belongs to a particular class. That is:
+
+\begin{itemize}
+    \item If $p < \alpha$, then $TSS(Segmented) \neq TSS(Full/SHARPs)$ - Class 1 or 3
+    \item If $p \geq \alpha$, then $TSS(Segmented) = TSS(Full/SHARPs)$ - Class 2 
+\end{itemize}
+
+\noindent Figure \ref{tbl:shpseg} shows the same table comparing the SHARPs and Segmented trained model.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{c|c|c}
+     Method & $P(\bar{TSS}(Full) \neq \bar{TSS}(Segmented))$ & Class \\
+     \hline
+     K Nearest Neighbors & 2.1e-12 & Class 1 \\
+     Naive Bayes & 4.5e-16 & Class 1 \\
+     Decision Tree & 0.04 & Class 2 \\
+     Random Forest & 0.16 & Class 2 \\
+     AdaBoost & 3.9e-5 & Class 1 \\
+     Support Vector Machine & 3.0e-5 & Class 1 \\
+     Logistic Regression & 3.2e-8 & Class 1 \\
+     Artificial Neural Network & 1.1e-12 & Class 1
+\end{tabular}
+\caption{Comparing the results of 50 trials of each method optimized and run on the Full and Segmented data sets. A low p value indicates that it is very likely that the actual mean score of the Segmented data set is different than the actual mean score of the Full feature set. Class 1 methods performed better on the Segmented data set than the Full and class 2 methods performed equally on both data sets.} 
+\label{tbl:bsseg}
+\end{center}
+\end{table}
+
+\begin{table}[H]
+\begin{center}
+\begin{tabular}{c|c|c}
+     Method & $P(\bar{TSS}(SHARPs) \neq \bar{TSS}(Segmented))$ & Class \\
+     \hline
+     K Nearest Neighbors & 1.1e-8 & Class 1 \\
+     Naive Bayes & 5.6e-12 & Class 1 \\
+     Decision Tree & 0.02 & Class 2 \\
+     Random Forest & 0.03 & Class 2 \\
+     AdaBoost & 3.5e-12 & Class 1 \\
+     Support Vector Machine & 7.1e-7 & Class 1 \\
+     Logistic Regression & 1.8e-8 & Class 1 \\
+     Artificial Neural Network & 1.9e-5 & Class 1
+\end{tabular}
+\caption{Comparing the results of 50 trials of each method optimized and run on the sHARPs and Segmented data sets. A low p value indicates that it is very likely that the actual mean score of the Segmented data set is different than the actual mean score of the sHARPs feature set. Class 1 methods performed better on the Segmented data set than the sHARPs and class 2 methods performed equally on both data sets.} 
+\label{tbl:shpseg}
+\end{center}
+\end{table}
+
+None of the methods I found fell in Class 3 for Full or SHARPs data set comparison, promising for the Segmented data set. The majority of methods performed the best on the Segmented data set, which implies that most machine learning models perform better when trained on the Segmented data set, and if anything, a select few less accurate machine learning models perform the same between all three data sets. Notably, the best results came from the Artificial Neural Network, and this model performed far better when trained on the Segmented data set than the other two data sets (with an average $TSS$ score of $0.787 \pm 0.05$ when trained on the Segmented data set, an average $TSS$ score of $0.759 \pm 0.04$ when trained on the Full data set, and an average $TSS$ score of $0.676 \pm 0.06$ when trained on the SHARPs data set). 
+
+For the sake of brevity and simplicity, I will now consider the results for K nearest neighbors (as the highest performing class 1 ``simple" method - i.e., not a neural network), Random Forest (as the highest performing class 2 method), and the Artificial Neural Network. I chose these specific models because of the simple models I used; KNN performed the best in class 1, and RF performed best in class 2. Overall, the Artificial Neural Network performed the best.
+%%%%%%%%%%%%%%%%%%%
+\begin{figure}[H]
+    \centering
+    \includeGraphics[width=0.8\linewidth]{ThesisFilePkg/figures/findings/compare_models.png}
+    \caption{A Box and Whisker plot showing the results of the Artificial Neural Network, KNN, Random Forest and Artificial Neural Network using Time Stacking.}
+    \label{fig:resultsmethods}
+\end{figure}
+
+We see two primary results. First, models trained on the Segmented data set perform better than those on the Full data set, which means that the added segmentation step increases the amount of helpful information for machine learning models. This assertion is supported when we take a dimension reduction of both data sets to only focus on the top 10 features alone. When I measured the shared information (discussed precisely in my feature selection section), I took the top 10 most important features of the Segmented and Full data sets. I then trained the same model on both of these ten features. Again, the ANN model performed better on the Segmented data set than the Full data set (with a p-value of 1e-12), which means that each feature of the Segmented data set contains more information than the Full data set, and it is not just the fact that there are more features in the Segmented data set than the Full that models trained on the Segmented data set perform better.
+
+Second, models trained on the Segmented data set perform better than those on the SHARPs data set, which means that the Segmented data set increases the amount of helpful information for machine learning models compared to a controlled standard. The same feature reduction method was used, and models trained on the Segmented data set still performed better (with a p-value of 2e-6).  
+
+\section{Goal two: Analyzing the Performance of the ANN}
+
+\subsection{Fixing the False Rates and Problem Space}
+We find that X flaring ARs were falsely predicted as negative far less than M flaring ARs, which indicates that magnitude should be considered in the output variable of the problem space. Figure \ref{fig:segfnr} shows the false negative rates of the ANN when trained on the Segmented data set and tested on a disjoint testing set. The x-axis indicates the type of flare that occurred, and the y-axis indicates time bins for the time until flaring. For example, of the tested ARs that produced an M class flare between 2.415 and 4.813 hours, the false-negative rate for this specific subset was 0.024. We see X-flaring ARs had a 0 false-negative rate between those that flared in 0-19.203 hours and a low false-negative rate for those between 19.203-24 hours. In each time bin, ARs that produced an M flare had a higher false-negative rate than those that produced X flares. So M flaring ARs were falsely labeled negative more frequently than X flares.
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+    \centering
+    \includeGraphics[width=0.7\linewidth]{ThesisFilePkg/figures/findings/SegmentedFNR.png}
+    \caption{The false-negative rates for ARs that flared within h hours (where h is found in either time bin on the left axis) for class M and X flares, respectively. Notice that X flaring regions' false negative rates are 0 from 0 hours to 19.203 hours but spike near the 24-hour mark. The same can be said for M flaring regions, which show a significantly higher false-negative rate.}
+    \label{fig:segfnr}
+\end{figure}
+
+We also find that X flaring ARs were falsely predicted as positive far more often than M flaring ARs, which again indicates that magnitude should be considered in the output variable of the problem space. Figure \ref{fig:segfpr} shows the false-positive rates for ARs \textit{that produced a flare in more than 24 hours}. Recall that our model was a binary classification, with a threshold of 24 hours for flaring and non-flaring. So an AR could have flared in more than 24 hours and been treated as a negative. Notice that of all the time bins, X flaring ARs had a higher false-positive rate than M flaring ARs. 
+%%%%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+    \centering
+    \includeGraphics[width=0.7\linewidth]{ThesisFilePkg/figures/findings/SegmentedFPR.png}
+    \caption{The false-positive rates for ARs that flared within h hours (where h is found in either time bin on the left axis) for class M and X flares, respectively. Notice that except for the last two data points of the x flare, the false positive rate is highest for both M flares and X flares closer to 24 hours as expected and that in general, false-positive for X flaring ARs is less than the false positive rate of M flaring regions.}
+    \label{fig:segfpr}
+\end{figure}
+
+The previous two findings indicate that the magnitude of flare is an important characteristic that should be captured in the output variable. We cannot just label flaring and non-flaring ARs because some flares are more significant than others, which should be captured in the output. The false-positive and negative rates for the Full and SHARPs data sets are shown in appendix \ref{appendix:fprfnrother}
+
+From figures \ref{fig:segfpr} and \ref{fig:segfpr}, we find that false rates are higher the closer the AR is to 24 hours. As the y axis approaches 24 hours (the bottom of the chart in figure \ref{fig:segfnr} and the top of the chart in figure \ref{fig:segfpr}) the false rates grow for both M and X flaring regions. Intuitively, this makes sense because, for example, if we look at an AR that flares in 23.9 hours, and one that flares in 24.1 hours, both would look very similar (they are only separated by 12 minutes, so not much could have changed in the AR). However, these two ARs are labeled differently. I attempted to fix this problem in my weighting of the Binary Cross Entropy Loss Function shown in figure \ref{fig:weights} by weighting the importance of incoming data that were closer to the 24-hour mark, but the issue persists. This finding indicates that the time until the flare is an important characteristic that should be captured in the output variable of the machine learning model. We cannot simply label an AR as flaring or non-flaring; we also need to label the time until the flare happens.
+
+These two problems, that the magnitude and time are two important characteristics that should be captured in the output variable, can be fixed in two ways. Either change the problem to a regression one or add in overlapping ``bins" to increase the categorical classification of flares. In both these solutions, we are increasing the possibilities of the output space to include the different magnitude and timed flares. 
+
+I implemented the first solution and changed the problem to a regression one. In this newly proposed problem space, rather than a model that predicts M+ flaring in 24 hours, we create a real-valued machine learning model that takes in an AR and returns the time and magnitude of a flare:
+
+$$f_{regress} : AR \rightarrow (t, M)$$
+
+\noindent where $t$ is the time until flare and $M$ is the magnitude of the flare. A problem arises, what do we label non-flaring ARs (that never flare)? There are a few solutions to this problem that are arbitrary in their own way. I chose to label all non-flaring regions with the time of two weeks (336 hours) and 0 magnitude. Then, I took all flaring ARs and changed the time until flare to two weeks. Two weeks is chosen because it is large enough to capture information for 24 hours. Suppose we create a regression problem and note if an AR flares within 24 hours, this is essentially the same classification problem as before. The magnitude implies that we also need to label more minor flares (both to capture more information and be more complete in our output). Solar flares are labeled with a letter (A, B, C, M, X) followed by a number greater than or equal to one and strictly less than 10. The number following the letter tells the factor of strength the flare is from the Full. An $A5$ flare is $5$ times greater than an $A1$ flare. $A$ flares are all those with peak flux at 0.1-0.8 manometer X-ray range less than $10^{-7}$. $B$ flares have a peak flux from $10^{-7}-10^{-6}$. $C$ flares have a peak flux from $10^{-6}-10^{-5}$. $M$ flares have a peak flux from $10^{-5}-10^{-4}$. $X$ flares have a peak flux greater than $10^{-4}$. I labeled AR magnitude with approximate magnitude inferred from their class labels. 
+
+I created the same ANN as before, only changing the output variable to two real values indicating the time and magnitude of flare. I labeled each data point with its magnitude and time till flare, setting non flaring ARs $(t, M) = (336, 0)$ and all ARs with $t > 336$ to $t = 336$. I added a final threshold to the output for the time and magnitude so that if the output time was less than 24 hours and the magnitude was greater than $10^{-5}$, they were treated as positive, and all other outputs were treated as negative. The resulting $TSS$ score for 5 of these train/test cycles came out with a mean of $0.754 \pm 0.01$, which is less than the achieved score of $0.787$ (achieved by the simple binary classification problem). There are a few reasons the regression problem could have performed worse. First, regression problems are inherently more challenging to train with a small data set. If I had more data points, and a more representative feature set, the regression problem could have performed better, but I have no way of knowing yet, and with the data, I have now, the binary classification performed the best.
+
+\subsection{Feature Ranking}
+To assess the importance of each feature, I used a mutual information test. Mutual Information between two random variables, X (the feature) and Y (M+ Flare within 24 hours), is a metric that assesses how independent the two random variables are. It measures the joint pdf $p_{X,Y}(x, y)$ and marginal pdfs $p_X(x)$ and $p_Y(y)$ and compares them in the following relation:
+
+$$I(X, Y) = \sum_{x \in X}\sum_{y \in Y}p_{X,Y}(x, y)log(\frac{p_{X,Y}(x, y)}{p_X(x)p_Y(y)})$$
+
+where $I(X, Y) = 0$ if X and Y are independent. Therefore, higher mutual information means a certain feature $X$ can be associated with flaring / non-flaring $Y$. 
+
+It was observed that most of the highest mutual information features were from the Segmented data set. The highest feature was the total excess potential energy of the neutral line (nl\_totrho). The ordering of the top 15 Mutual Information scores for each of the data sets are shown in figure \ref{tbl:ftrank}.
+%%%%%%%%%%%%%%%%%%%%%%%
+\begin{table}
+\begin{center}
+\begin{tabular}{c|c|c}
+     Variable Description & Mutual Info & From data set \\
+     \hline
+     Total Neutral Line Excess Potential Energy & 0.0806 & Segmented \\
+     Total unsigned current helicity & 0.0721 & SHARPs \\
+     Total sum of vertical current within the Penumbra & 0.0701 & Segmented \\
+     Total sum of horizontal current within the Penumbra & 0.0701 & Segmented \\
+     Total sum of horizontal current within the neutral line & 0.0688 & Segmented \\
+     Total sum of current helicity within the penumbra & 0.0682 & Segmented \\
+     Standard deviation of excess potential energy in the penumbra & 0.067 & Segmented \\
+     Total unsigned vertical current & 0.0669 & SHARPs \\
+     Total sum of vertical magnetic field within the penumbra & 0.0650 & Segmented \\
+     Total sum of the magnitude of current helicity in the penumbra & 0.0635 & Segmented \\
+     Total sum of the magnitude of current helicity in the neutral line & 0.0631 & Segmented \\
+     Sum of the magnitude of the net currents & 0.0629 & SHARPs \\
+     Total Excess Potential Energy & 0.063 & SHARPs \\
+     Total sum of the magnitude of current helicity & 0.0621 & Full \\
+     Total sum of current helicity within the umbra & 0.0618 & Segmented
+\end{tabular}
+\caption{Feature Ranking of all Features stacked together using the Kendall-$\tau$ statistical correlation test.} 
+\label{tbl:ftrank}
+\end{center}
+\end{table}
+
+Figure \ref{tbl:ftrank} shows that the ANN did not only perform better when trained on the Segmented data set than the other two data sets because it had more features; each individual Segmented feature held more significance than both other data sets. The top 15 features included 10 Segmented features, 4 SHARPs features, and 1 Full feature. When I trained the ANN on only the ten most important features of each data set, I found that the ANN performed worse when trained on Full than SHARPs, even though it performed better when trained on all the features of the Full data set. I hypothesized that the Full data set only performed better because it had more features, and each feature was not any more informative. The results in figure \ref{tbl:ftrank} support this conclusion because only one Full feature captured enough mutual information to belong to the top 15 features compared to 4 SHARPs features. When I did the same test between Segmented and SHARPs and reduced the number of features to the top 10, the ANN trained on the Segmented data set performed better than the ANN trained on the SHARPs data set. This fact, along with the fact that the Segmented data set has ten features on table \ref{tbl:ftrank} while the SHARPs data set only had four, indicates that the model did not just perform better before because there were more Segmented features, it performed better because individual Segmented features held more importance than those of the SHARPs features. 
+
+
+\section{Graph Results and Discussion}
+
+The model results described in my methods section applied to the Graph data set were underwhelming. The TSS score for the Graph data set was $0.454 \pm 0.04$. Some possible reasons for the poor performance include the fact that there were far too many parameters to tune in the Graph segmentation algorithm, including the number of nodes, number of nodes to keep, what constitutes a connection, and other high-level aspects of the Graph algorithm. This large number of parameters to tune in the algorithm requires me to recompute the data set many times, which is not reasonable with the amount of time it takes (being roughly two-three weeks of processing time). Another potential reason for the poor performance of the algorithm is that the data set itself may be too noisy. This is a distinct possibility as many variables are based on human interpretation and can contain errors. 
+
+Despite the poor TSS score, I believe there is potential to improve in the future. This is a helpful tool for the solar physicist because it offers a general way of measuring how specific regions of an AR are related to one another. This can give us insight into how the solar magnetic field is structured and how that structure might influence the production of flares. 

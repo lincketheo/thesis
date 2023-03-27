@@ -1,0 +1,15 @@
+\chapter{Conclusions}
+
+There were two main conclusions drawn. First, I showed that a large selection of machine learning models of various complexity has a higher performance in M+ solar flare forecasting within 24 hours when trained on the new segmented dataset than the same models trained on the baseline. This conclusion shows that the extra segmentation step proposed in this work does improve the performance of machine learning models for solar flare forecasting. 
+
+Second, I showed the same outperformance of models trained on the SHARPs dataset, which shows that the segmented dataset generally offers more information than a widely used dataset in solar flares studies. This can have significant implications since the segmentation step proposed in this work offers improved performance in forecasting and provides new insights that were not possible to obtain with the baseline dataset. 
+
+I compared previous models on dimension reduced versions of each dataset (each with 10 of the most important features based on the mutual information score), and the same results applied, meaning that not only did the dataset as a whole offer more information to machine learning models, but individual features alone in the segmented dataset were more informative to flaring / nonflaring than SHARPs features and baseline features.  
+
+Overall, the segmentation step proposed in this work offers a significant improvement in performance for solar flare forecasting with machine learning models and new insights into the behavior of solar flares. 
+
+I showed that, although a promising tool for solar physicists, the graph dataset did not perform well in automated flare forecasting with machine learning and that, in its current state, it should only be used as a supplement to other data. This lack of performance came from the fact that there were so many parameters to tune and edge cases to test in the graph dataset, as it is now that some resulting graphs were widely misunderstood by the present encoding algorithms I tried to use.  
+
+Overall,  this work presents a new method for automated solar flare forecasting that offers improved performance over state-of-the-art methods and new insights into the behavior of solar flares.
+
+In the future,  I plan to extend this work by incorporating additional data sources such as Helioseismic and Magnetic Imager (HMI) vector magnetograms and Solar Dynamics Observatory (SDO)/AIA images to improve performance further. Additionally, I plan to develop new graph-based features that can be extracted from the HMI and SDO/AIA data to improve the performance of the graph-based approach. 
